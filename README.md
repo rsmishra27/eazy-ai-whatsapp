@@ -1,1 +1,3 @@
-# eazy-ai-whatsapp chatbot
+# WhatsApp Agentic Chatbot
+
+Project setup.

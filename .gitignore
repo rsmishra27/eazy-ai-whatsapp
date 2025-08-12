@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Byte-compiled / cache
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environment
+*.env
+*.venv
+
+# Model checkpoints
+*.ckpt
+*.pt
+*.pth
+
+# Local data files
+*.sqlite3
+data/
