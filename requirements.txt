@@ -1,19 +1,10 @@
-# Core backend
 fastapi
 uvicorn[standard]
-
-# LLM Agent & RAG
-langchain
-langgraph
-google-generativeai
-
-# WhatsApp & Webhooks
 twilio
 python-dotenv
-
-# Speech (STT)
-whisper
-
-# Utilities
+google-generativeai
 requests
 pydantic
+langchain
+langgraph
+python-multipart-0.0.20
