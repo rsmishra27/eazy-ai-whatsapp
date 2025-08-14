@@ -1,0 +1,107 @@
+[
+  {
+    "id": "p1",
+    "name": "Wireless Bluetooth Headphones",
+    "category": "Electronics",
+    "description": "High quality wireless headphones with noise cancellation.",
+    "price": 59.99
+  },
+  {
+    "id": "p2",
+    "name": "Organic Green Tea",
+    "category": "Grocery",
+    "description": "Refreshing organic green tea leaves, 100g pack.",
+    "price": 9.99
+  },
+  {
+    "id": "p3",
+    "name": "Running Shoes",
+    "category": "Footwear",
+    "description": "Comfortable and durable running shoes for all terrains.",
+    "price": 89.99
+  },
+  {
+    "id": "p4",
+    "name": "Smart LED Light Bulb",
+    "category": "Home Automation",
+    "description": "Control your lighting remotely with this smart LED bulb.",
+    "price": 19.99
+  },
+  {
+    "id": "p5",
+    "name": "Cotton T-shirt",
+    "category": "Clothing",
+    "description": "100% cotton t-shirt available in multiple colors.",
+    "price": 14.99
+  },
+  {
+    "id": "p6",
+    "name": "Stainless Steel Water Bottle",
+    "category": "Kitchen",
+    "description": "Eco-friendly water bottle that keeps drinks hot for 12 hours and cold for 24 hours.",
+    "price": 24.99
+  },
+  {
+    "id": "p7",
+    "name": "Yoga Mat",
+    "category": "Fitness",
+    "description": "Non-slip yoga mat with extra cushioning for comfort.",
+    "price": 29.99
+  },
+  {
+    "id": "p8",
+    "name": "Smartphone Tripod Stand",
+    "category": "Electronics",
+    "description": "Adjustable lightweight tripod stand for smartphones and cameras.",
+    "price": 15.50
+  },
+  {
+    "id": "p9",
+    "name": "Gaming Mechanical Keyboard",
+    "category": "Electronics",
+    "description": "RGB backlit mechanical keyboard with customizable keys.",
+    "price": 79.99
+  },
+  {
+    "id": "p10",
+    "name": "Herbal Face Wash",
+    "category": "Personal Care",
+    "description": "Gentle herbal face wash for clear and refreshed skin.",
+    "price": 7.99
+  },
+  {
+    "id": "p11",
+    "name": "Bluetooth Portable Speaker",
+    "category": "Electronics",
+    "description": "Compact Bluetooth speaker with deep bass and long battery life.",
+    "price": 39.99
+  },
+  {
+    "id": "p12",
+    "name": "Wooden Study Table",
+    "category": "Furniture",
+    "description": "Premium solid wood study table with spacious drawers.",
+    "price": 199.99
+  },
+  {
+    "id": "p13",
+    "name": "Leather Wallet",
+    "category": "Accessories",
+    "description": "Slim and stylish genuine leather wallet for men and women.",
+    "price": 34.99
+  },
+  {
+    "id": "p14",
+    "name": "Wireless Charging Pad",
+    "category": "Electronics",
+    "description": "Fast wireless charger compatible with Android and iOS devices.",
+    "price": 19.50
+  },
+  {
+    "id": "p15",
+    "name": "Men's Formal Shoes",
+    "category": "Footwear",
+    "description": "Premium leather formal shoes for office and events.",
+    "price": 99.99
+  }
+]

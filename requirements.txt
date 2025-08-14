@@ -8,3 +8,4 @@ pydantic
 langchain
 langgraph
 python-multipart-0.0.20
+langdetect-1.0.9

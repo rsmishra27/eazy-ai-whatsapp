@@ -1,32 +1,30 @@
 # app/core/graph.py
+from app.core.vector_search import search_similar_products
 import asyncio
 from typing import Optional
-from app.agents import llm_agent, stt_tool
-from app.core import storage, config
+from app.agents import stt_tool
+from app.core import storage
 
-async def process_message(from_number: str, body: Optional[str], media_url: Optional[str]) -> str:
-    """
-    Simple agentic pipeline:
-    - If media_url present: transcribe (STT) -> store -> pass transcript to LLM
-    - Else: pass text body to LLM
-    """
-    # If audio present → transcribe
+async def process_message(from_number: str, body: Optional[str], media_url: Optional[str], language: Optional[str] = None) -> str:
     text_input = body
+    lang_code = language
+
     if media_url:
-        # stt_tool.transcribe_audio is synchronous; run in threadpool to avoid blocking
         loop = asyncio.get_running_loop()
-        transcript = await loop.run_in_executor(None, stt_tool.transcribe_audio, media_url)
-        # store transcription
+        transcript, detected_lang = await loop.run_in_executor(None, stt_tool.transcribe_audio, media_url)
         storage.store_transcript(from_number, transcript)
         text_input = transcript
+        lang_code = detected_lang
 
-    # simple guard: if no text at all
     if not text_input or text_input.strip() == "":
         return "Sorry, I couldn't read that. Can you please send a text or voice message again?"
 
-    # prepare a prompt for LLM — you can make this richer with context/history
-    prompt = f"User ({from_number}) said: {text_input}\nRespond concisely as a friendly shopping assistant with short suggestions."
+    # Use semantic search to recommend products
+    recommended = search_similar_products(text_input, top_k=3)
 
-    # call the LLM agent
-    reply = llm_agent.generate_reply(prompt=prompt, user_id=from_number)
+    # Format product recommendations into a reply message
+    reply = "Here are some products you might like:\n"
+    for p in recommended:
+        reply += f"- {p['name']} (${p['price']})\n"
+
     return reply
