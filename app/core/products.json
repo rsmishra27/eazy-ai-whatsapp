@@ -1,107 +1,107 @@
 [
   {
     "id": "p1",
-    "name": "Wireless Bluetooth Headphones",
-    "category": "Electronics",
-    "description": "High quality wireless headphones with noise cancellation.",
+    "name": "سماعات بلوتوث لاسلكية",
+    "category": "إلكترونيات",
+    "description": "سماعات لاسلكية عالية الجودة مع خاصية إلغاء الضوضاء.",
     "price": 59.99
   },
   {
     "id": "p2",
-    "name": "Organic Green Tea",
-    "category": "Grocery",
-    "description": "Refreshing organic green tea leaves, 100g pack.",
+    "name": "شاي أخضر عضوي",
+    "category": "مواد غذائية",
+    "description": "أوراق شاي أخضر عضوي، عبوة 100 جرام.",
     "price": 9.99
   },
   {
     "id": "p3",
-    "name": "Running Shoes",
-    "category": "Footwear",
-    "description": "Comfortable and durable running shoes for all terrains.",
+    "name": "حذاء جري",
+    "category": "أحذية",
+    "description": "حذاء مريح ومتين مناسب لجميع أنواع التضاريس.",
     "price": 89.99
   },
   {
     "id": "p4",
-    "name": "Smart LED Light Bulb",
-    "category": "Home Automation",
-    "description": "Control your lighting remotely with this smart LED bulb.",
+    "name": "لمبة ذكية LED",
+    "category": "أدوات منزلية ذكية",
+    "description": "تحكم في الإضاءة عن بُعد باستخدام هذه اللمبة الذكية.",
     "price": 19.99
   },
   {
     "id": "p5",
-    "name": "Cotton T-shirt",
-    "category": "Clothing",
-    "description": "100% cotton t-shirt available in multiple colors.",
+    "name": "قميص قطن",
+    "category": "ملابس",
+    "description": "قميص مصنوع من القطن بنسبة 100٪، متوفر بألوان متعددة.",
     "price": 14.99
   },
   {
     "id": "p6",
-    "name": "Stainless Steel Water Bottle",
-    "category": "Kitchen",
-    "description": "Eco-friendly water bottle that keeps drinks hot for 12 hours and cold for 24 hours.",
+    "name": "زجاجة مياه من الستانلس ستيل",
+    "category": "أدوات المطبخ",
+    "description": "زجاجة صديقة للبيئة تحافظ على المشروبات باردة لمدة 24 ساعة وساخنة لمدة 12 ساعة.",
     "price": 24.99
   },
   {
     "id": "p7",
-    "name": "Yoga Mat",
-    "category": "Fitness",
-    "description": "Non-slip yoga mat with extra cushioning for comfort.",
+    "name": "سجادة يوجا",
+    "category": "لياقة بدنية",
+    "description": "سجادة يوجا غير قابلة للانزلاق مع وسادة إضافية للراحة.",
     "price": 29.99
   },
   {
     "id": "p8",
-    "name": "Smartphone Tripod Stand",
-    "category": "Electronics",
-    "description": "Adjustable lightweight tripod stand for smartphones and cameras.",
+    "name": "حامل ثلاثي للهواتف الذكية",
+    "category": "إلكترونيات",
+    "description": "حامل ثلاثي قابل للتعديل وخفيف الوزن للهواتف والكاميرات.",
     "price": 15.50
   },
   {
     "id": "p9",
-    "name": "Gaming Mechanical Keyboard",
-    "category": "Electronics",
-    "description": "RGB backlit mechanical keyboard with customizable keys.",
+    "name": "لوحة مفاتيح ميكانيكية للألعاب",
+    "category": "إلكترونيات",
+    "description": "لوحة مفاتيح ميكانيكية بإضاءة خلفية RGB ومفاتيح قابلة للتخصيص.",
     "price": 79.99
   },
   {
     "id": "p10",
-    "name": "Herbal Face Wash",
-    "category": "Personal Care",
-    "description": "Gentle herbal face wash for clear and refreshed skin.",
+    "name": "غسول وجه بالأعشاب",
+    "category": "عناية شخصية",
+    "description": "غسول وجه لطيف بالأعشاب لبشرة صافية ومنعشة.",
     "price": 7.99
   },
   {
     "id": "p11",
-    "name": "Bluetooth Portable Speaker",
-    "category": "Electronics",
-    "description": "Compact Bluetooth speaker with deep bass and long battery life.",
+    "name": "سماعة بلوتوث محمولة",
+    "category": "إلكترونيات",
+    "description": "سماعة بلوتوث صغيرة الحجم مع صوت عميق وبطارية طويلة الأمد.",
     "price": 39.99
   },
   {
     "id": "p12",
-    "name": "Wooden Study Table",
-    "category": "Furniture",
-    "description": "Premium solid wood study table with spacious drawers.",
+    "name": "طاولة دراسة خشبية",
+    "category": "أثاث",
+    "description": "طاولة دراسة مصنوعة من الخشب الصلب مع أدراج واسعة.",
     "price": 199.99
   },
   {
     "id": "p13",
-    "name": "Leather Wallet",
-    "category": "Accessories",
-    "description": "Slim and stylish genuine leather wallet for men and women.",
+    "name": "محفظة جلدية",
+    "category": "إكسسوارات",
+    "description": "محفظة أنيقة مصنوعة من الجلد الطبيعي مناسبة للرجال والنساء.",
     "price": 34.99
   },
   {
     "id": "p14",
-    "name": "Wireless Charging Pad",
-    "category": "Electronics",
-    "description": "Fast wireless charger compatible with Android and iOS devices.",
+    "name": "شاحن لاسلكي سريع",
+    "category": "إلكترونيات",
+    "description": "شاحن لاسلكي سريع متوافق مع أجهزة أندرويد و iOS.",
     "price": 19.50
   },
   {
     "id": "p15",
-    "name": "Men's Formal Shoes",
-    "category": "Footwear",
-    "description": "Premium leather formal shoes for office and events.",
+    "name": "حذاء رسمي رجالي",
+    "category": "أحذية",
+    "description": "حذاء رسمي مصنوع من الجلد الفاخر مثالي للمكتب والمناسبات.",
     "price": 99.99
   }
 ]
