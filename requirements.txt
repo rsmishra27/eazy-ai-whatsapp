@@ -1,19 +1,10 @@
 fastapi
 uvicorn
 twilio
-python-dotenv
-requests
-langdetect
-
-# LLM
-google-generativeai
-
-# LangGraph
+langchain
+langchain-google-genai
 langgraph
-pydantic>=2.0
-typing-extensions
-
-# Embeddings + FAISS
+assemblyai
 sentence-transformers
 faiss-cpu
-numpy
+python-dotenv
