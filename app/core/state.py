@@ -1,25 +1,12 @@
-#state.py
-from __future__ import annotations
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+# app/core/state.py
+from typing import TypedDict, Optional, Any
 
-class Turn(BaseModel):
-    role: str
-    content: str
-
-class AgentState(BaseModel):
-    # Input
+class AgentState(TypedDict):
+    """Represents the state of the LangGraph agent."""
     user_id: str
-    text: Optional[str] = None
-    media_url: Optional[str] = None
-    language: Optional[str] = None  # 'ar', 'en', etc.
-
-    # Derived
-    intent: Optional[str] = None           # 'product_search' | 'greeting' | 'faq' | 'smalltalk'
-    product_query: Optional[str] = None    # clean extracted query (e.g., 'white t-shirt')
-    search_results: Optional[List[Dict[str, Any]]] = None  # products
-    llm_reply: Optional[str] = None        # final text reply
-
-    # Meta
-    messages: List[Turn] = Field(default_factory=list)     # optional history (lightweight)
-    debug: Dict[str, Any] = Field(default_factory=dict)    # for instrumentation
+    text: str
+    language: Optional[str]
+    intent: Optional[str]
+    query: Optional[str]
+    llm_reply: Optional[str]
+    debug: Optional[Any]

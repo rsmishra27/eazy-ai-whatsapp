@@ -1,76 +1,53 @@
-# app/core/vector_search.py
-import faiss
-import numpy as np
 import json
-import os
-from app.core.embedding_model import embed_text
+from pathlib import Path
+from typing import List, Dict, Any
+import numpy as np
+import faiss
+from app.core.embedding_model import get_embedding_model
 
-# Paths
-PRODUCTS_FILE = "app/core/products.json"
-INDEX_FILE = "app/core/products.index"
+PRODUCTS_FILE = Path(__file__).parent / "products.json"
+INDEX_FILE = Path(__file__).parent.parent.parent / "data" / "faiss_index.bin"
+_index = None
+_products: List[Dict[str, Any]] = []
 
-# Load products from JSON
-with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
-    products = json.load(f)
+async def initialize_vector_store():
+    """Initializes or loads the FAISS index."""
+    global _index, _products
+    model = get_embedding_model()
 
-VECTOR_DIM = 384  # for paraphrase-multilingual-MiniLM-L12-v2
-
-
-def build_and_save_index():
-    """
-    Generate embeddings from products.json (both EN + AR text) and save FAISS index.
-    """
-    print("⚙️ Rebuilding FAISS index from products.json...")
-
-    product_texts = []
-    expanded_products = []
-
-    for p in products:
-        # English entry
-        if p.get("name_en") and p.get("desc_en"):
-            product_texts.append(f"{p['name_en']} - {p['desc_en']}")
-            expanded_products.append(p)
-
-        # Arabic entry
-        if p.get("name_ar") and p.get("desc_ar"):
-            product_texts.append(f"{p['name_ar']} - {p['desc_ar']}")
-            expanded_products.append(p)
-
-    product_embeddings = np.array([embed_text(t) for t in product_texts]).astype("float32")
-
-    index = faiss.IndexFlatL2(VECTOR_DIM)
-    index.add(product_embeddings)
-    faiss.write_index(index, INDEX_FILE)
-
-    print(f"✅ Index rebuilt and saved with {len(expanded_products)} entries.")
-    return index, expanded_products
-
-
-# --- Load or Rebuild ---
-if os.path.exists(INDEX_FILE):
-    print("🔄 Loading existing FAISS index from disk...")
-    index = faiss.read_index(INDEX_FILE)
-
-    # if index size != product entries * 2 (en+ar), rebuild
-    expected_size = sum(1 for p in products for f in ["name_en", "name_ar"] if p.get(f))
-    if index.ntotal != expected_size:
-        print("⚠️ Product count changed — rebuilding index...")
-        index, products_expanded = build_and_save_index()
+    if INDEX_FILE.exists():
+        print("Loading existing FAISS index...")
+        _index = faiss.read_index(str(INDEX_FILE))
+        with open(PRODUCTS_FILE, 'r', encoding='utf-8') as f:
+            _products = json.load(f)
     else:
-        products_expanded = products
-else:
-    index, products_expanded = build_and_save_index()
+        print("Creating new FAISS index...")
+        with open(PRODUCTS_FILE, 'r', encoding='utf-8') as f:
+            _products = json.load(f)
+        
+        product_descriptions = [p["description_en"] for p in _products]
+        embeddings = model.encode(product_descriptions, convert_to_tensor=False)
+        embeddings = np.array(embeddings).astype('float32')
 
+        dimension = embeddings.shape[1]
+        _index = faiss.IndexFlatL2(dimension)
+        _index.add(embeddings)
+        
+        INDEX_FILE.parent.mkdir(parents=True, exist_ok=True)
+        faiss.write_index(_index, str(INDEX_FILE))
+        print("FAISS index created and saved.")
 
-def search_similar_products(query: str, top_k: int = 3):
-    """
-    Search for the most semantically similar products to the query.
-    """
-    query_vec = embed_text(query).astype("float32").reshape(1, -1)
-    distances, indices = index.search(query_vec, top_k)
+def search_similar_products(query: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    """Performs a semantic search on the FAISS index."""
+    if _index is None or not _products:
+        print("Vector store not initialized.")
+        return []
 
-    results = []
-    for i in indices[0]:
-        if i < len(products_expanded):
-            results.append(products_expanded[i])
+    model = get_embedding_model()
+    query_embedding = model.encode([query], convert_to_tensor=False)
+    query_embedding = np.array(query_embedding).astype('float32')
+    
+    D, I = _index.search(query_embedding, top_k)
+    
+    results = [_products[idx] for idx in I[0] if idx < len(_products)]
     return results
