@@ -1,10 +1,31 @@
+# Web framework & async
 fastapi
 uvicorn
+
+# Twilio WhatsApp integration
 twilio
+
+# LLM & AI frameworks
 langchain
 langchain-google-genai
 langgraph
 assemblyai
+
+# Embeddings & vector search
 sentence-transformers
+transformers
+torch
 faiss-cpu
+
+# Data processing
+pandas
+numpy
+tqdm
+requests
+
+# Environment variables
 python-dotenv
+
+# Async support
+aiohttp
+async-timeout

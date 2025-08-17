@@ -4,51 +4,65 @@ from app.core.state import AgentState
 from app.core.language import detect_language
 from app.core.intent import detect_intent_llm
 from app.core.query_extraction import extract_query
-from app.agents.tools import product_recommend, chat_greet
+from app.agents.tools.chat_greet import chat_greet
+from FAISSRecommenderTool import FAISSRecommenderTool
 from typing import Any
 
+# -----------------------------
+# Initialize FAISS Recommender
+# -----------------------------
+product_recommender = FAISSRecommenderTool(
+    dataset_path="electronics_demo_dataset.csv",
+    index_path="electronics_demo_index.faiss"
+)
+
+# -----------------------------
+# Graph nodes
+# -----------------------------
 def node_normalize(state: AgentState) -> dict:
-    """Normalizes the input by detecting language."""
+    """Normalize input and detect language."""
     state['language'] = state.get('language') or detect_language(state['text'])
-    if 'debug' not in state:
-        state['debug'] = {}
-    state['debug']['language'] = state['language']
+    state.setdefault('debug', {})['language'] = state['language']
     return state
 
 def node_intent(state: AgentState) -> dict:
-    """Detects the intent of the message."""
+    """Detect intent via LLM."""
     state['intent'] = detect_intent_llm(state['text'], state['language'])
-    if 'debug' not in state:
-        state['debug'] = {}
-    state['debug']['intent'] = state['intent']
+    state.setdefault('debug', {})['intent'] = state['intent']
     return state
 
 def node_query_extraction(state: AgentState) -> dict:
-    """Extracts a search query from the user's text for product recommendation."""
+    """Extract search query for recommendation."""
     state['query'] = extract_query(state['text'], state['language'])
-    if 'debug' not in state:
-        state['debug'] = {}
-    state['debug']['query'] = state['query']
+    state.setdefault('debug', {})['query'] = state['query']
     return state
 
 def node_recommend(state: AgentState) -> dict:
-    """Calls the product recommendation tool and saves the content to the state."""
-    reply = product_recommend(state['query'], state['language'])
-    state['llm_reply'] = reply.content
+    """Calls the FAISS product recommendation tool and saves a simple string reply."""
+    recommendations = product_recommend(state['query'], state['language'])
+    
+    # Format the recommendations into a readable string
+    reply_text = "\n".join([f"{r['title']} ({r['category']})" for r in recommendations])
+    
+    state['llm_reply'] = reply_text
     return state
 
+
 def node_chat_greet(state: AgentState) -> dict:
-    """Calls the general chat/greet tool and saves the content to the state."""
+    """Call chat/greet tool."""
     reply = chat_greet(state['text'], state['language'])
     state['llm_reply'] = reply.content
     return state
 
 def router(state: AgentState) -> str:
-    """Routes the graph based on the detected intent."""
+    """Route based on intent."""
     if state['intent'] in ["greet", "smalltalk"]:
         return "chat_greet"
     return "query_extraction"
 
+# -----------------------------
+# Build LangGraph
+# -----------------------------
 graph = StateGraph(AgentState)
 graph.add_node("normalize", node_normalize)
 graph.add_node("intent", node_intent)
@@ -68,8 +82,11 @@ graph.add_edge("chat_greet", END)
 
 app = graph.compile()
 
+# -----------------------------
+# Helper for WhatsApp
+# -----------------------------
 async def run_message(user_id: str, text: str, language: str = None) -> str:
-    """Runs a message through the LangGraph and returns the reply."""
+    """Run a user message through LangGraph and return reply."""
     state = AgentState(
         user_id=user_id,
         text=text,
