@@ -1,19 +1,18 @@
-#query extraction
-import re
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.schema import HumanMessage
+from app.core.prompts import QUERY_EXTRACTION_PROMPT
 
-# basic heuristic: strip leading “show me”, “i want”, Arabic equivalents; keep color + item words
-# You can upgrade later with an LLM-based extractor.
-STRIP_PATTERNS = [
-    r"^\s*(show|find|recommend|i want|i need|please show|أرني|ابحث|أريد|أحتاج)\s+(me\s+)?",
-]
+llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
 
-def extract_product_query(text: str) -> str:
-    q = text.strip().lower()
-    for pat in STRIP_PATTERNS:
-        q = re.sub(pat, "", q, flags=re.IGNORECASE)
-    # remove trailing politeness
-    q = re.sub(r"(?:please|من فضلك)\s*$", "", q).strip()
-    # minimal cleanup punctuation
-    q = re.sub(r"[^\w\s\u0600-\u06FF\-]+", " ", q)  # keep Arabic block
-    q = re.sub(r"\s+", " ", q).strip()
-    return q
+def extract_query(text: str, language: str) -> str:
+    """
+    Extracts a concise search query from a conversational text using the LLM.
+    """
+    prompt = QUERY_EXTRACTION_PROMPT.format(text=text, language=language)
+    try:
+        human_message = HumanMessage(content=prompt)
+        response = llm_model.invoke([human_message])
+        return response.content.strip()
+    except Exception as e:
+        print(f"[extract_query] Gemini error: {e}")
+        return text

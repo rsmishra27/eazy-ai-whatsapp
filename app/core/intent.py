@@ -1,7 +1,7 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
 from app.core.prompts import INTENT_PROMPT
+from app.core.config import settings
 
 llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
 
