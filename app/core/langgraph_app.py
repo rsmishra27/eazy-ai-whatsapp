@@ -34,14 +34,12 @@ def node_query_extraction(state: AgentState) -> dict:
 def node_recommend(state: AgentState) -> dict:
     """Calls the product recommendation tool and saves the content to the state."""
     reply = product_recommend(state['query'], state['language'])
-    # Correctly access the content of the AIMessage object
     state['llm_reply'] = reply.content
     return state
 
 def node_chat_greet(state: AgentState) -> dict:
     """Calls the general chat/greet tool and saves the content to the state."""
     reply = chat_greet(state['text'], state['language'])
-    # Correctly access the content of the AIMessage object
     state['llm_reply'] = reply.content
     return state
 
@@ -82,4 +80,5 @@ async def run_message(user_id: str, text: str, language: str = None) -> str:
         debug={}
     )
     out = await app.ainvoke(state)
+    print(f"Final LangGraph output: {out}")
     return out.get("llm_reply", "...")
