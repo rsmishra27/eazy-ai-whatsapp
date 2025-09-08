@@ -2,9 +2,17 @@
 
 from sentence_transformers import SentenceTransformer
 
-# Load a strong multilingual embedding model that works well with Arabic
-# This model is trained on multiple languages including Arabic and English
-model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+# Global variable to store the model (lazy loaded)
+_model = None
+
+def get_model():
+    """Lazy load the embedding model to avoid blocking startup."""
+    global _model
+    if _model is None:
+        print("🔄 Loading embedding model...")
+        _model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        print("✅ Embedding model loaded successfully!")
+    return _model
 
 def embed_text(text: str):
     """
@@ -12,4 +20,5 @@ def embed_text(text: str):
     multilingual MiniLM model.
     Works for Arabic, English, and many other languages.
     """
+    model = get_model()
     return model.encode(text, convert_to_numpy=True)
