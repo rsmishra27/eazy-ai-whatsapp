@@ -11,3 +11,5 @@ sentence-transformers
 numpy
 assemblyai
 python-dotenv
+boto3
+pandas

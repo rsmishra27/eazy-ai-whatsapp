@@ -5,28 +5,36 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any
 from app.core.embedding_model import embed_text, get_embedding_model
+from app.core.s3_loader import S3ProductLoader
 
 # Paths
-PRODUCTS_FILE = Path(__file__).parent / "products.json"
 INDEX_FILE = Path(__file__).parent.parent.parent / "data" / "faiss_index.bin"
 
 # Global variables for lazy loading
 _products = None
 _index = None
+_s3_loader = None
 VECTOR_DIM = 384  # for 'all-MiniLM-L6-v2'
 
+def get_s3_loader():
+    """Get S3 loader instance"""
+    global _s3_loader
+    if _s3_loader is None:
+        _s3_loader = S3ProductLoader()
+    return _s3_loader
+
 def get_products():
-    """Lazy load products from JSON file."""
+    """Lazy load products from S3"""
     global _products
     if _products is None:
-        print("🔄 Loading products from JSON...")
-        with open(PRODUCTS_FILE, "r", encoding="utf-8") as f:
-            _products = json.load(f)
-        print(f"✅ Loaded {len(_products)} products!")
+        print("🔄 Loading products from S3...")
+        s3_loader = get_s3_loader()
+        _products = s3_loader.get_products()
+        print(f"✅ Loaded {len(_products)} products from S3!")
     return _products
 
 def get_index():
-    """Lazy load or build FAISS index."""
+    """Lazy load or build FAISS index"""
     global _index
     if _index is None:
         print("🔄 Loading FAISS index...")
@@ -46,21 +54,38 @@ def get_index():
     return _index
 
 def build_and_save_index():
-    """
-    Generate embeddings from products.json and save FAISS index to disk.
-    """
-    print("⚙️ Rebuilding FAISS index from products.json...")
+    """Generate embeddings and save FAISS index"""
+    print("⚙️ Rebuilding FAISS index from S3 products...")
     products = get_products()
     
-    # Handle multilingual product structure
+    # Handle different product structures
     product_texts = []
     for p in products:
-        # Use English fields if available, fallback to Arabic or generic fields
-        name = p.get('name_en') or p.get('name_ar') or p.get('name', '')
-        description = p.get('description_en') or p.get('description_ar') or p.get('description', '')
-        product_texts.append(f"{name} - {description}")
+        # Try different field combinations
+        title = p.get('title') or p.get('name') or p.get('name_en') or p.get('name_ar') or ''
+        description = p.get('description') or p.get('details') or p.get('description_en') or p.get('description_ar') or ''
+        category = p.get('category') or p.get('type') or ''
+        brand = p.get('brand') or ''
+        
+        # Create searchable text
+        product_text = f"{title} {description} {category} {brand}".strip()
+        product_texts.append(product_text)
     
-    product_embeddings = np.array([embed_text(t) for t in product_texts]).astype("float32")
+    print(f"🔄 Generating embeddings for {len(product_texts)} products...")
+    
+    # Process in batches to avoid memory issues
+    batch_size = 1000
+    product_embeddings = []
+    
+    for i in range(0, len(product_texts), batch_size):
+        batch = product_texts[i:i + batch_size]
+        print(f"🔄 Processing batch {i//batch_size + 1}/{(len(product_texts) + batch_size - 1)//batch_size}")
+        
+        batch_embeddings = [embed_text(t) for t in batch]
+        product_embeddings.extend(batch_embeddings)
+    
+    product_embeddings = np.array(product_embeddings).astype("float32")
+    
     index = faiss.IndexFlatL2(VECTOR_DIM)
     index.add(product_embeddings)
     
@@ -69,7 +94,7 @@ def build_and_save_index():
     print(f"✅ Index rebuilt and saved with {len(products)} products.")
     return index
 
-def search_similar_products(query: str, top_k: int = 3):
+def search_similar_products(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
     """
     Search for the most semantically similar products to the query.
     """

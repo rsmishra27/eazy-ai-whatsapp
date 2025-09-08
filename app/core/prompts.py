@@ -13,7 +13,8 @@ INTENT_PROMPT = PromptTemplate(
 CHAT_GREET_PROMPT = PromptTemplate(
     input_variables=["text", "language"],
     template=(
-        "You are a helpful WhatsApp assistant. Respond concisely in {language}.\n"
+        "You are a helpful WhatsApp shopping assistant. Respond concisely in {language}.\n"
+        "If the user greets you, introduce yourself as a shopping assistant and ask how you can help.\n"
         "User said: {text}"
     ),
 )
@@ -25,7 +26,8 @@ PRODUCT_RECOMMEND_PROMPT = PromptTemplate(
         "The user is looking for a product based on the query: '{text}'. "
         "The following products were found: {products}. "
         "Respond concisely in {language}, recommending the products in a friendly tone. "
-        "Do not list the prices. If no products were found, apologize politely."
+        "Include product names, prices, and brief descriptions. "
+        "If no products were found, apologize politely and suggest they try different keywords."
     ),
 )
 
@@ -33,7 +35,7 @@ QUERY_EXTRACTION_PROMPT = PromptTemplate(
     input_variables=["text", "language"],
     template=(
         "Extract a concise product search query from the user's message in {language}. "
-        "The query should contain key product characteristics. "
+        "The query should contain key product characteristics like category, brand, price range, or features. "
         "Message: '{text}'. "
         "Only reply with the extracted query."
     ),
