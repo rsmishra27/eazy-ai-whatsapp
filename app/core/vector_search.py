@@ -2,11 +2,13 @@ import faiss
 import numpy as np
 import json
 import os
-from app.core.embedding_model import embed_text
+from pathlib import Path
+from typing import List, Dict, Any
+from app.core.embedding_model import embed_text, get_embedding_model
 
 # Paths
-PRODUCTS_FILE = "app/core/products.json"
-INDEX_FILE = "app/core/products.index"
+PRODUCTS_FILE = Path(__file__).parent / "products.json"
+INDEX_FILE = Path(__file__).parent.parent.parent / "data" / "faiss_index.bin"
 
 # Global variables for lazy loading
 _products = None
@@ -30,9 +32,9 @@ def get_index():
         print("🔄 Loading FAISS index...")
         products = get_products()
         
-        if os.path.exists(INDEX_FILE):
+        if INDEX_FILE.exists():
             print("🔄 Loading existing FAISS index from disk...")
-            _index = faiss.read_index(INDEX_FILE)
+            _index = faiss.read_index(str(INDEX_FILE))
             
             # Check if catalog size changed
             if _index.ntotal != len(products):
@@ -53,7 +55,9 @@ def build_and_save_index():
     product_embeddings = np.array([embed_text(t) for t in product_texts]).astype("float32")
     index = faiss.IndexFlatL2(VECTOR_DIM)
     index.add(product_embeddings)
-    faiss.write_index(index, INDEX_FILE)
+    
+    INDEX_FILE.parent.mkdir(parents=True, exist_ok=True)
+    faiss.write_index(index, str(INDEX_FILE))
     print(f"✅ Index rebuilt and saved with {len(products)} products.")
     return index
 
@@ -66,3 +70,9 @@ def search_similar_products(query: str, top_k: int = 3):
     query_vec = embed_text(query).astype("float32").reshape(1, -1)
     distances, indices = index.search(query_vec, top_k)
     return [products[i] for i in indices[0]]
+
+# For compatibility with the other developer's code
+async def initialize_vector_store():
+    """Initializes or loads the FAISS index."""
+    get_index()
+    get_products()

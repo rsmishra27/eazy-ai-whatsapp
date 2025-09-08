@@ -1,56 +1,64 @@
 # app/api/whatsapp.py
-from fastapi import APIRouter, Form, Request
+import os
+from fastapi import APIRouter, Form, Request, HTTPException
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
-from langdetect import detect
-from app.core import graph
-from app.agents.stt_tool import transcribe_audio
+from twilio.request_validator import RequestValidator
+from app.core.config import settings
+from app.core.langgraph_app import run_message
+from app.agents.stt_tool import transcribe_audio_from_url  # if your file is stt_tools.py, keep that import
 
 router = APIRouter()
+validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
 
-@router.post("/webhook")
+def get_twilio_xml_response(body: str) -> Response:
+    """Return a proper TwiML XML response with correct content-type."""
+    if not body or body.isspace():
+        body = "Sorry, I can't generate a response right now. Please try again."
+
+    twilio_resp = MessagingResponse()
+    twilio_resp.message(body)
+    # IMPORTANT: return XML content-type so Twilio parses it
+    return Response(content=str(twilio_resp), media_type="application/xml")
+
+@router.post("/")
 async def whatsapp_webhook(
     request: Request,
-    Body: str = Form(None),
     From: str = Form(...),
-    NumMedia: str = Form("0"),
-    MediaUrl0: str = Form(None),
+    Body: str = Form(None),
+    MediaUrl0: str = Form(None)
 ):
-    print(f"[webhook] from={From} num_media={NumMedia} body={Body}")
+    """
+    Handles incoming messages from WhatsApp via Twilio.
+    - Transcribes audio messages using AssemblyAI.
+    - Passes text to the LangGraph application for processing.
+    """
 
-    reply_text = None
-    lang_code = "en"  # Default to English if detection fails
+    # (Optional but recommended) Validate Twilio signature
+    # Comment out this block if you're testing locally without a stable public URL
+    twilio_signature = request.headers.get("X-Twilio-Signature", "")
+    url = str(request.url)
+    form = dict(await request.form())
+    if settings.TWILIO_AUTH_TOKEN:
+        if not validator.validate(url, form, twilio_signature):
+            # If validation fails, return 403 to avoid spoofed requests
+            raise HTTPException(status_code=403, detail="Invalid Twilio signature")
 
-    if NumMedia != "0" and MediaUrl0:
-        transcript, lang_code = transcribe_audio(MediaUrl0)
-        print(f"[webhook] Transcribed text: {transcript}")
-        print(f"[webhook] Detected language: {lang_code}")
+    user_id = From.split("whatsapp:")[-1] if "whatsapp:" in From else From
 
-        reply_text = await graph.process_message(
-            from_number=From,
-            body=transcript,
-            media_url=MediaUrl0,
-            language=lang_code
-        )
-    else:
-        # Plain text message
-        if Body:
-            try:
-                lang_code = detect(Body)
-                print(f"[webhook] Detected text language: {lang_code}")
-            except Exception as e:
-                print("[webhook] Language detection failed:", e)
-            reply_text = await graph.process_message(
-                from_number=From,
-                body=Body,
-                media_url=None,
-                language=lang_code
-            )
+    try:
+        if MediaUrl0:
+            print(f"Received audio message from {user_id}")
+            text_content = transcribe_audio_from_url(MediaUrl0)
+            if not text_content:
+                return get_twilio_xml_response("Sorry, I could not transcribe that audio.")
+        else:
+            print(f"Received text message from {user_id}: {Body}")
+            text_content = Body or ""
 
-    if not reply_text:
-        reply_text = "⚠️ Sorry, I couldn't process that."
+        llm_response = await run_message(user_id=user_id, text=text_content)
+        return get_twilio_xml_response(llm_response)
 
-    resp = MessagingResponse()
-    resp.message(reply_text)
-
-    return Response(content=str(resp), media_type="application/xml")
+    except Exception as e:
+        print(f"Error processing message: {e}")
+        return get_twilio_xml_response("An error occurred. Please try again later.")

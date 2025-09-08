@@ -37,3 +37,5 @@ venv.bak/
 # Local data files
 *.sqlite3
 data/
+.env.backup
+.env

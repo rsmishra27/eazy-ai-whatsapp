@@ -1,5 +1,3 @@
-# app/core/embedding_model.py
-
 from sentence_transformers import SentenceTransformer
 
 # Global variable to store the model (lazy loaded)
@@ -13,6 +11,10 @@ def get_model():
         _model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
         print("✅ Embedding model loaded successfully!")
     return _model
+
+def get_embedding_model():
+    """Returns a singleton instance of the SentenceTransformer model."""
+    return get_model()
 
 def embed_text(text: str):
     """

@@ -1,8 +1,10 @@
 # main.py
 import os
 import sys
+import uvicorn
 from fastapi import FastAPI
-from app.api import whatsapp
+from app.api.whatsapp import router as whatsapp_router
+from app.core.vector_search import initialize_vector_store
 
 print("🚀 Starting WhatsApp AI Agent...")
 print(f"Python version: {sys.version}")
@@ -10,6 +12,13 @@ print(f"Working directory: {os.getcwd()}")
 print(f"Environment variables loaded: {bool(os.getenv('TWILIO_ACCOUNT_SID'))}")
 
 app = FastAPI(title="Eazy AI WhatsApp Agent")
+
+@app.on_event("startup")
+async def startup_event():
+    """Initializes the FAISS vector store on application startup."""
+    print("Initializing FAISS vector store...")
+    await initialize_vector_store()
+    print("FAISS vector store initialized.")
 
 # Add health check endpoint
 @app.get("/health")
@@ -34,5 +43,8 @@ async def root():
     return {"message": "WhatsApp AI Agent is running"}
 
 print("📱 Loading WhatsApp router...")
-app.include_router(whatsapp.router, prefix="")
+app.include_router(whatsapp_router, prefix="")
 print("✅ Application setup complete!")
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
