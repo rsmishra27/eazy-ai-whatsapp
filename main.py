@@ -11,6 +11,11 @@ print(f"Python version: {sys.version}")
 print(f"Working directory: {os.getcwd()}")
 print(f"Environment variables loaded: {bool(os.getenv('TWILIO_ACCOUNT_SID'))}")
 
+# Set Google API key for Gemini
+if os.getenv('GEMINI_API_KEY'):
+    os.environ['GOOGLE_API_KEY'] = os.getenv('GEMINI_API_KEY')
+    print("✅ Google API key set for Gemini")
+
 app = FastAPI(title="Eazy AI WhatsApp Agent")
 
 @app.on_event("startup")

@@ -3,11 +3,12 @@ import os
 import tempfile
 import requests
 import assemblyai as aai
+from typing import Optional
 from app.core.config import settings
 
 aai.settings.api_key = settings.ASSEMBLYAI_API_KEY
 
-def transcribe_audio_from_url(audio_url: str) -> str | None:
+def transcribe_audio_from_url(audio_url: str) -> Optional[str]:
     """Download WhatsApp voice note from Twilio and transcribe with AssemblyAI."""
     if not audio_url:
         return None

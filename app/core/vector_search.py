@@ -51,7 +51,15 @@ def build_and_save_index():
     """
     print("⚙️ Rebuilding FAISS index from products.json...")
     products = get_products()
-    product_texts = [f"{p['name']} - {p['description']}" for p in products]
+    
+    # Handle multilingual product structure
+    product_texts = []
+    for p in products:
+        # Use English fields if available, fallback to Arabic or generic fields
+        name = p.get('name_en') or p.get('name_ar') or p.get('name', '')
+        description = p.get('description_en') or p.get('description_ar') or p.get('description', '')
+        product_texts.append(f"{name} - {description}")
+    
     product_embeddings = np.array([embed_text(t) for t in product_texts]).astype("float32")
     index = faiss.IndexFlatL2(VECTOR_DIM)
     index.add(product_embeddings)

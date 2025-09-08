@@ -21,7 +21,7 @@ def get_twilio_xml_response(body: str) -> Response:
     # IMPORTANT: return XML content-type so Twilio parses it
     return Response(content=str(twilio_resp), media_type="application/xml")
 
-@router.post("/")
+@router.post("/webhook")
 async def whatsapp_webhook(
     request: Request,
     From: str = Form(...),
@@ -34,8 +34,9 @@ async def whatsapp_webhook(
     - Passes text to the LangGraph application for processing.
     """
 
-    # (Optional but recommended) Validate Twilio signature
-    # Comment out this block if you're testing locally without a stable public URL
+    # Skip Twilio signature validation for testing
+    # Uncomment the block below for production use
+    """
     twilio_signature = request.headers.get("X-Twilio-Signature", "")
     url = str(request.url)
     form = dict(await request.form())
@@ -43,6 +44,7 @@ async def whatsapp_webhook(
         if not validator.validate(url, form, twilio_signature):
             # If validation fails, return 403 to avoid spoofed requests
             raise HTTPException(status_code=403, detail="Invalid Twilio signature")
+    """
 
     user_id = From.split("whatsapp:")[-1] if "whatsapp:" in From else From
 

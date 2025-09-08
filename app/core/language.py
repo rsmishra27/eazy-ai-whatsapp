@@ -2,7 +2,17 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.schema import HumanMessage
 import re
 
-llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+# Global variable for lazy loading
+_llm_model = None
+
+def get_llm_model():
+    """Lazy load the LLM model to avoid blocking startup."""
+    global _llm_model
+    if _llm_model is None:
+        print("🔄 Loading Gemini LLM model...")
+        _llm_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+        print("✅ Gemini LLM model loaded successfully!")
+    return _llm_model
 
 def detect_language(text: str) -> str:
     """
@@ -13,6 +23,7 @@ def detect_language(text: str) -> str:
         return "en"
     
     try:
+        llm_model = get_llm_model()
         prompt = f"Detect the language of the following text: '{text}'. Reply with only 'en' for English or 'ar' for Arabic."
         human_message = HumanMessage(content=prompt)
         response = llm_model.invoke([human_message])
